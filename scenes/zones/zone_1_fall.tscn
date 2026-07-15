@@ -1,0 +1,32 @@
+[gd_scene load_steps=2 format=3 uid="uid://cq1r6ypc3n4f8"]
+
+[sub_resource type="GDScript" id="GDScript_zone1"]
+script/source = "extends Node2D
+
+# ZONA 1: LA CAÍDA
+# Primera zona donde cae el Alma de Odio
+
+var player_falling = true
+var fall_speed = 400.0
+var player_y_pos = 0.0
+var player_y_target = 240.0
+var fall_time = 0.0
+var fall_duration = 3.0
+
+func _ready():
+	print('\\n=== ZONA 1: LA CAÍDA ===')
+	print('El Alma de Odio cae a través de la oscuridad...')
+	print('Neblina rosada envuelve todo...')
+	print('================================\\n')
+
+func _process(delta):
+	if player_falling:
+		fall_time += delta
+		if fall_time >= fall_duration:
+			player_falling = false
+			print('\\n[ZONA 1] Tus pies tocan el suelo...')
+			print('[ZONA 1] Más adelante, algo brilla en la oscuridad...')
+"
+
+[node name="Zone1_Fall" type="Node2D"]
+script = SubResource("GDScript_zone1")

@@ -1,0 +1,40 @@
+# Godot-specific ignores
+.godot/
+user_data/
+*.import
+*.translation
+
+# Python byte code
+*.pyc
+*.pyo
+__pycache__/
+
+# C extensions
+*.so
+*.o
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+PIPFILE.lock
+
+# Godot export
+export_presets.cfg
+*.exe
+*.zip

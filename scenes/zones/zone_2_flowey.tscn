@@ -1,0 +1,31 @@
+[gd_scene load_steps=2 format=3 uid="uid://ct8j7n2x1f5a9"]
+
+[sub_resource type="GDScript" id="GDScript_zone2"]
+script/source = "extends Node2D
+
+# ZONA 2: JARDÍN OSCURO
+# Encuentro con Flowey - Planta Carnívora
+
+var flowey_present = true
+var dialogue_active = false
+var is_boss_fight = false
+
+func _ready():
+	print('\\n=== ZONA 2: JARDÍN OSCURO ===')
+	print('Entras a un jardín retorcido y anormal.')
+	print('Las plantas tienen formas extrañas... casi carnívoras.')
+	print('Una flor grande y rosa emerge del suelo con una sonrisa malévola.')
+	print('\\n[FLOWEY HA APARECIDO]')
+	print('============================\\n')
+
+func _process(delta):
+	if flowey_present and not dialogue_active:
+		dialogue_active = true
+		start_flowey_encounter()
+
+func start_flowey_encounter():
+	print('[FLOWEY] Ahahaha... Te veo...')
+"
+
+[node name="Zone2_Flowey" type="Node2D"]
+script = SubResource("GDScript_zone2")

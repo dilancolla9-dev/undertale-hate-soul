@@ -1,0 +1,33 @@
+{
+  "flowey_first_encounter": [
+    "Hola... ¿Otra alma que cae?",
+    "Qué adorable...",
+    "Déjame mostrarte lo que sucede cuando alguien como tú aparece aquí.",
+    "Mis raíces siempre tienen hambre de almas rosa como la tuya...",
+    "¿Acaso crees que eres especial? Solo eres otra presa.",
+    "Bienvenido al infierno, pequeña alma."
+  ],
+  "flowey_attack": [
+    "¡ATAQUE! ¡MIS RAÍCES SALEN DEL SUELO!",
+    "¡ESPINAS CARNÍVORAS LANZAN HACIA TI!",
+    "¿Crees que puedes escapar de mí en MI jardín?"
+  ],
+  "zone_1_intro": [
+    "Caes a través de la negrura...",
+    "De repente, tus pies tocan el suelo.",
+    "Te encuentras en una caverna extraña y envuelta en neblina rosada.",
+    "Tu color refleja en la penumbra.",
+    "A lo lejos, ves una flor brillar con una sonrisa malévola..."
+  ],
+  "zone_2_intro": [
+    "Avanzas a través de la caverna...",
+    "Las paredes cambian de textura.",
+    "Plantas extrañas crecen a tu alrededor.",
+    "El aire huele a algo orgánico... carnívoro.",
+    "De repente, llegas a un claro...",
+    "Allí crece un enorme jardín oscuro.",
+    "Y en el centro... una flor gigante.",
+    "Sus pétalos son de un rosa oscuro y rojo.",
+    "Sus ojos se abren lentamente..."
+  ]
+}

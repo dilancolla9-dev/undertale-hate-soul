@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3 uid="uid://d3cp88g2j5c2u"]
+
+[sub_resource type="GDScript" id="GDScript_main"]
+script/source = "extends Node2D
+
+func _ready():
+	print('\\n==== UNDERTALE: HATE SOUL ====')
+	print('Bienvenido al juego del Alma de Odio')
+	print('============================\\n')
+
+func _process(delta):
+	pass
+"
+
+[node name="Main" type="Node2D"]
+script = SubResource("GDScript_main")

@@ -1,0 +1,24 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go in here are often tweaked, when edited using
+; the UI and may not be obvious.
+
+config_version=5
+
+[application]
+
+config/name="Undertale: Hate Soul"
+config/version="0.1.0"
+run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.1", "Forward Plus")
+config/icon="res://icon.svg"
+
+[display]
+
+window/size/viewport_width=640
+window/size/viewport_height=480
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=0
+renderer/rendering_mode="2d"
