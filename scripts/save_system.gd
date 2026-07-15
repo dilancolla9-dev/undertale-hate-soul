@@ -2,192 +2,122 @@ extends Node
 
 class_name SaveSystem
 
-# Sistema de Guardado y Carga Persistente
+# Sistema de guardado y carga persistente
 
-var save_path = "user://saves/"
+var save_path = "user://hate_soul_saves/"
 var current_save_slot = 0
-var saves: Array[SaveData] = []
+var max_saves = 10
 
-signal game_saved(slot: int)
-signal game_loaded(slot: int)
+signal save_completed(slot: int)
+signal load_completed(slot: int)
 signal save_deleted(slot: int)
 
 func _ready():
-	print("[SAVE] Sistema de guardado inicializado")
-	
-	# Crear carpeta de guardado si no existe
 	if not DirAccess.dir_exists_absolute(save_path):
 		DirAccess.make_absolute(save_path)
-		print("[SAVE] Carpeta de guardado creada")
-	
-	load_all_saves()
+	print("[SAVE SYSTEM] Sistema de guardado inicializado")
 
-func save_game(slot: int, game_state: Dictionary) -> void:
-	"""Guarda la partida en un slot"""
-	if slot < 0 or slot > 9:
+func save_game(game_data: Dictionary, slot: int = 0) -> bool:
+	"""Guarda el juego en un slot"""
+	if slot < 0 or slot >= max_saves:
 		print("[SAVE] Slot inválido: ", slot)
-		return
+		return false
 	
-	var save_data = SaveData.new()
-	save_data.slot = slot
-	save_data.timestamp = Time.get_ticks_msec()
-	save_data.player_level = game_state.get("level", 1)
-	save_data.player_hp = game_state.get("hp", 20)
-	save_data.player_max_hp = game_state.get("max_hp", 20)
-	save_data.gold = game_state.get("gold", 0)
-	save_data.experience = game_state.get("experience", 0)
-	save_data.current_zone = game_state.get("zone", 1)
-	save_data.route = game_state.get("route", "neutral")
-	save_data.playtime = game_state.get("playtime", 0)
-	save_data.inventory = game_state.get("inventory", [])
-	save_data.killed_enemies = game_state.get("killed_enemies", [])
+	var save_file = save_path + "save_" + str(slot) + ".json"
+	var json_string = JSON.stringify(game_data)
 	
-	var json = JSON.new()
-	var json_string = json.stringify(save_data.to_dict())
-	
-	var file = FileAccess.open(save_path + "save_" + str(slot) + ".json", FileAccess.WRITE)
+	var file = FileAccess.open(save_file, FileAccess.WRITE)
 	if file:
 		file.store_string(json_string)
-		print("[SAVE] Partida guardada en slot ", slot)
-		game_saved.emit(slot)
+		print("[SAVE] Juego guardado en slot ", slot)
+		print("[SAVE] Ruta: ", save_file)
+		save_completed.emit(slot)
+		return true
 	else:
 		print("[SAVE] Error al guardar en slot ", slot)
+		return false
 
-func load_game(slot: int) -> Dictionary:
-	"""Carga la partida de un slot"""
-	if slot < 0 or slot > 9:
+func load_game(slot: int = 0) -> Dictionary:
+	"""Carga el juego desde un slot"""
+	if slot < 0 or slot >= max_saves:
 		print("[SAVE] Slot inválido: ", slot)
 		return {}
 	
-	var file_path = save_path + "save_" + str(slot) + ".json"
-	if FileAccess.file_exists(file_path):
-		var file = FileAccess.open(file_path, FileAccess.READ)
-		if file:
-			var json = JSON.new()
-			var content = file.get_as_text()
-			var data = json.parse(content)
-			print("[SAVE] Partida cargada desde slot ", slot)
-			game_loaded.emit(slot)
-			return data as Dictionary
-	else:
-		print("[SAVE] No hay partida en slot ", slot)
+	var save_file = save_path + "save_" + str(slot) + ".json"
+	
+	if not FileAccess.file_exists(save_file):
+		print("[SAVE] No existe guardado en slot ", slot)
 		return {}
-
-func load_all_saves() -> void:
-	"""Carga todos los archivos de guardado disponibles"""
-	saves.clear()
 	
-	for i in range(10):
-		var file_path = save_path + "save_" + str(i) + ".json"
-		if FileAccess.file_exists(file_path):
-			var file = FileAccess.open(file_path, FileAccess.READ)
-			if file:
-				var json = JSON.new()
-				var content = file.get_as_text()
-				var data = json.parse(content)
-				var save_data = SaveData.from_dict(data)
-				saves.append(save_data)
+	var file = FileAccess.open(save_file, FileAccess.READ)
+	if file:
+		var json_string = file.get_as_text()
+		var json = JSON.new()
+		var parse_result = json.parse(json_string)
+		
+		if parse_result == OK:
+			var game_data = json.get_data()
+			print("[SAVE] Juego cargado desde slot ", slot)
+			load_completed.emit(slot)
+			return game_data
 	
-	print("[SAVE] ", saves.size(), " partidas cargadas")
+print("[SAVE] Error al cargar desde slot ", slot)
+	return {}
 
-func delete_save(slot: int) -> void:
-	"""Elimina un archivo de guardado"""
-	var file_path = save_path + "save_" + str(slot) + ".json"
-	if FileAccess.file_exists(file_path):
-		DirAccess.remove_absolute(file_path)
-		print("[SAVE] Partida eliminada del slot ", slot)
+func delete_save(slot: int = 0) -> bool:
+	"""Borra un guardado"""
+	if slot < 0 or slot >= max_saves:
+		print("[SAVE] Slot inválido: ", slot)
+		return false
+	
+	var save_file = save_path + "save_" + str(slot) + ".json"
+	
+	if FileAccess.file_exists(save_file):
+		DirAccess.remove_absolute(save_file)
+		print("[SAVE] Guardado eliminado del slot ", slot)
 		save_deleted.emit(slot)
+		return true
+	return false
 
-func get_save_info(slot: int) -> SaveData:
-	"""Obtiene información de una partida"""
-	for save in saves:
-		if save.slot == slot:
-			return save
-	return null
-
-func list_saves() -> void:
-	"""Lista todas las partidas disponibles"""
-	print("\n" + "="*50)
-	print("PARTIDAS DISPONIBLES")
-	print("="*50)
-	
-	for i in range(10):
-		var save_data = get_save_info(i)
-		if save_data:
-			var time_str = _milliseconds_to_time(save_data.playtime)
-			print("[Slot ", i, "] Nivel ", save_data.player_level, " - Zona ", save_data.current_zone, " - ", save_data.route.to_upper(), " - Tiempo: ", time_str)
+func list_saves() -> Array:
+	"""Lista todos los guardados disponibles"""
+	var saves: Array = []
+	for i in range(max_saves):
+		var save_file = save_path + "save_" + str(i) + ".json"
+		if FileAccess.file_exists(save_file):
+			saves.append({
+				"slot": i,
+				"path": save_file,
+				"exists": true
+			})
 		else:
-			print("[Slot ", i, "] [VACÍÓ]")
-	
-	print("="*50 + "\n")
+			saves.append({
+				"slot": i,
+				"exists": false
+			})
+	return saves
 
-func _milliseconds_to_time(milliseconds: int) -> String:
-	"""Convierte milisegundos a formato HH:MM:SS"""
-	var seconds = milliseconds / 1000
-	var minutes = seconds / 60
-	var hours = minutes / 60
-	
-	seconds = seconds % 60
-	minutes = minutes % 60
-	
-	return "%02d:%02d:%02d" % [hours, minutes, seconds]
+func get_save_data(slot: int = 0) -> Dictionary:
+	"""Obtiene información del guardado"""
+	var saves = list_saves()
+	if slot >= 0 and slot < saves.size():
+		return saves[slot]
+	return {}
 
-class SaveData:
-	var slot: int
-	var timestamp: int
-	var playtime: int
-	var player_level: int
-	var player_hp: int
-	var player_max_hp: int
-	var gold: int
-	var experience: int
-	var current_zone: int
-	var route: String  # "pacifista", "neutral", "genocida", "genocidio_real"
-	var inventory: Array
-	var killed_enemies: Array[String]
-	
-	func _init():
-		slot = 0
-		timestamp = 0
-		playtime = 0
-		player_level = 1
-		player_hp = 20
-		player_max_hp = 20
-		gold = 0
-		experience = 0
-		current_zone = 1
-		route = "neutral"
-		inventory = []
-		killed_enemies = []
-	
-	func to_dict() -> Dictionary:
-		return {
-			"slot": slot,
-			"timestamp": timestamp,
-			"playtime": playtime,
-			"player_level": player_level,
-			"player_hp": player_hp,
-			"player_max_hp": player_max_hp,
-			"gold": gold,
-			"experience": experience,
-			"current_zone": current_zone,
-			"route": route,
-			"inventory": inventory,
-			"killed_enemies": killed_enemies
-		}
-	
-	static func from_dict(data: Dictionary) -> SaveData:
-		var save = SaveData.new()
-		save.slot = data.get("slot", 0)
-		save.timestamp = data.get("timestamp", 0)
-		save.playtime = data.get("playtime", 0)
-		save.player_level = data.get("player_level", 1)
-		save.player_hp = data.get("player_hp", 20)
-		save.player_max_hp = data.get("player_max_hp", 20)
-		save.gold = data.get("gold", 0)
-		save.experience = data.get("experience", 0)
-		save.current_zone = data.get("current_zone", 1)
-		save.route = data.get("route", "neutral")
-		save.inventory = data.get("inventory", [])
-		save.killed_enemies = data.get("killed_enemies", [])
-		return save
+func create_game_data(game_manager: GameManager, inventory: InventorySystem) -> Dictionary:
+	"""Crea un diccionario con los datos del juego"""
+	return {
+		"timestamp": Time.get_ticks_msec(),
+		"level": game_manager.player_level,
+		"zone": game_manager.current_zone,
+		"route": game_manager.current_route,
+		"hate_stat": game_manager.hate_stat,
+		"pacifist_acts": game_manager.pacifist_acts,
+		"violent_acts": game_manager.violent_acts,
+		"gold": inventory.gold,
+		"experience": inventory.experience,
+		"inventory_items": [], # Se completaría con items reales
+		"equipment": inventory.equipment,
+		"defeated_enemies": game_manager.defeated_enemies,
+		"completed_events": game_manager.completed_events
+	}
